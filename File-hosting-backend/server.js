@@ -3,15 +3,26 @@ var express = require('express');
 var cors = require('cors');
 var mysql = require('mysql');
 var bodyParser = require('body-parser');
+const multiparty = require("multiparty");
+const AWS = require('aws-sdk'); //TODO migrate to aws-sdk-v3
 const dotenv = require("dotenv").config();
+const fs = require('fs');
 
 var app = express();
-app.use(cors());
-// parse application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({ extended: false }))
 
-// parse application/json
-app.use(bodyParser.json())
+const s3 = new AWS.S3({
+  accessKeyId: process.env.AWS_ACCESS_KEY,
+  secretAccessKey: process.env.AWS_SECRET_KEY,
+  region: 'us-west-1',
+});
+
+app.use(cors());
+
+app.use(bodyParser.json({limit: '50mb'}));
+app.use(bodyParser.urlencoded({
+limit: '50mb',
+extended: true
+})); 
 
 var con = mysql.createConnection({
   host: process.env.DB_HOST,
@@ -72,30 +83,86 @@ app.post('/api/signup', function (req, res) {
     });
 });
 
-//POST Request uploadImageData
-app.post('/api/uploadImageData', function (req, res) {
-  console.log("Upload Request");
-  console.log(JSON.stringify(req.body));
-  let file_name = req.body.file_name;
-  let description = req.body.description;
-  let Userid = req.body.Userid;
-  let file = req.body.file;
-  con.query("INSERT INTO Uploads (file_name, description, Userid, file) VALUES (\"" + file_name + "\", \"" + description + "\", " + Userid + ", \"" + file + "\");",
-    function (err, result) {
-      if (err) {
-        console.log(err);
-        res.send({ code: 400, message: "Upload Failed Error" });
-      } else {
-        console.log("Result: " + JSON.stringify(result));
-        console.log(result.insertId);
-        if (result.insertId != 0) {
-          res.send({ code: 200, message: "Upload Successful" });
-        } else {
-          res.send({ code: 400, message: "Upload Failed" });
-        }
+//Generate random string for file name
+const makeRandom = () => {
+  let rand = '';
+  var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  for (var i = 0; i < 4; i++) {
+    rand += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  return rand;
+}
 
-      }
-    });
+
+//POST Request uploadImage
+//Receives file, userid, description, file_name
+//Uploads file to AWS S3 Bucket
+//Saves file_name, description, userid, file_path to database
+
+app.post('/api/uploadImage', function (req, res) {
+  console.log("Upload Request");
+  var form = new multiparty.Form();
+
+  form.parse(req, (err, fields, files) => {
+    if (err) {
+      console.log(err);
+      res.status(400).send({ code: 400, message: "Failed to upload image", error: err });
+    }
+
+    try {
+      var fields_list = Object.entries(fields);
+      var files_list = Object.entries(files);
+      var file = files_list[0][1][0];
+      var file_name = fields_list[0][1][0];
+      console.log(file_name);
+      const file_content = fs.readFileSync(file.path);
+
+      var description = fields_list[1][1][0];
+      console.log(description);
+      var Userid = fields_list[2][1][0];
+      console.log(Userid);
+
+      var rand = makeRandom();
+
+      file_name = file_name + "-" + rand + ".jpg";
+
+      var params = {
+        Body: file_content,
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: file_name
+      };
+
+      s3.upload(params, function (err, data) {
+        if (err) {
+          console.log(err);
+          return res.status(400).send({ code: 400, message: "Failed to upload image", error: err });
+        }
+        else {
+          //save file details to database
+          con.query("INSERT INTO Uploads (file_name, description, Userid, file) VALUES (\"" + file_name + "\", \"" + description + "\", \"" + Userid + "\", \"" + data.Location + "\");",
+            function (err, result) {
+              if (err) {
+                console.log(err);
+                res.send({ code: 400, message: "Upload Failed Error" });
+              } else {
+                console.log("Result: " + JSON.stringify(result));
+                console.log(result.insertId);
+                if (result.insertId != 0) {
+                  res.status(200).send({ code: 200, message: "Upload Successful" });
+                } else {
+                  res.status(400).send({ code: 400, message: "Upload Failed" });
+                }
+
+              }
+            });
+        }
+      });
+    } catch (err) {
+      console.log(err);
+      return res.status(400).send({ code: 400, message: "Failed to upload image", error: err });
+    }
+  });
+
 });
 
 //GET Request getImageData(UserID) Returns array of all images uploaded by user

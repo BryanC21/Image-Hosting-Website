@@ -8,29 +8,31 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 const Navbar = () => {
     const dispatch = useDispatch();
-    const [show, setShow] = useState(false)
+    const [showSignout, setShowSignout] = useState(false)
+    const [showLogin, setShowLogin] = useState(false)
     const info = useSelector(state => state.customReducer);
 
     const handlesSignOut = (e) => {
         //window.location.href = "/";
         dispatch(setID(0));
-        setShow(false);
+        setShowSignout(false);
+        setShowLogin(true);
     };
 
     useEffect(() => {
         if (info.userid > 0) {
-            setShow(true);
+            setShowSignout(true);
+            setShowLogin(false);
         }
     }, [info]);
 
 
 
     return (
-        <nav className="navbar navbar-expand-lg navbar-light bg-light">
+        <nav className="navbar navbar-expand-lg navbar-dark bg-info">
             <Link className="navbar-brand" to="/">
                 Home
             </Link>
-            
 
             <div className="" id="navbarNavDropdown">
                 <ul className="navbar-nav">
@@ -39,17 +41,23 @@ const Navbar = () => {
                             Images
                         </Link>
                     </li>
-                    <li className="nav-item">
-                        <Link className="nav-link" to="/login">
-                            Login
-                        </Link>
-                    </li>
-                    <li className="nav-item">
-                        <Link className="nav-link" to="/signup">
-                            Sign up
-                        </Link>
-                    </li>
-                    { show ? 
+                    {showLogin ?
+                        <li className="nav-item">
+                            <Link className="nav-link" to="/login">
+                                Login
+                            </Link>
+                        </li>
+                        : null
+                    }
+                    {showLogin ?
+                        <li className="nav-item">
+                            <Link className="nav-link" to="/signup">
+                                Sign up
+                            </Link>
+                        </li>
+                        : null
+                    }
+                    {showSignout ?
                         <li className="nav-item">
                             <Link className="nav-link" to="/" onClick={handlesSignOut}>
                                 Sign Out

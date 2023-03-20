@@ -22,7 +22,7 @@ function Login() {
         //console.log(e.target.username);
         const username = e.target.username.value;
         const password = e.target.password.value;
-        const url = 'https://bcaldera.com/api/login';
+        const url = process.env.REACT_APP_BASE_URL + '/api/login';
         axios.post(url, {
             username,
             password

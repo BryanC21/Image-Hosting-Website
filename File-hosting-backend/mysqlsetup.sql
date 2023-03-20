@@ -1,5 +1,7 @@
 CREATE DATABASE IF NOT EXISTS `FileHosterDB`;
 
+USE FileHosterDB;
+
 CREATE TABLE IF NOT EXISTS Users (
     Userid int NOT NULL AUTO_INCREMENT,
     username varchar(255) NOT NULL,
