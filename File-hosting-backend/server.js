@@ -67,7 +67,7 @@ app.post('/api/signup', function (req, res) {
     function (err, result) {
       if (err) {
         console.log(err);
-        res.send({ code: 400, message: "Signup Failed. Username taken!" });
+        res.send({ code: 400, message: "Signup Failed. Username taken!", err: err });
       } else {
         //console.log("Result: " + JSON.stringify(result));
         //console.log(result.insertId);
