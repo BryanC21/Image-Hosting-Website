@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from 'react-router-dom';
 import { useSelector, useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
 import { setID } from "./redux/actions";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -13,7 +12,6 @@ const Navbar = () => {
     const info = useSelector(state => state.customReducer);
 
     const handlesSignOut = (e) => {
-        //window.location.href = "/";
         dispatch(setID(0));
         setShowSignout(false);
         setShowLogin(true);
@@ -23,14 +21,17 @@ const Navbar = () => {
         if (info.userid > 0) {
             setShowSignout(true);
             setShowLogin(false);
+        } else {
+            setShowSignout(false);
+            setShowLogin(true);
         }
     }, [info]);
 
 
 
     return (
-        <nav className="navbar navbar-expand-lg navbar-dark bg-info">
-            <Link className="navbar-brand" to="/">
+        <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
+            <Link className="navbar-brand" style={{ margin: '0 20px 0 20px' }} to="/">
                 Home
             </Link>
 

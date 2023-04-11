@@ -1,4 +1,4 @@
-var port = process.env.PORT || 5005;
+var port = process.env.PORT || 5012;
 var express = require('express');
 var cors = require('cors');
 var mysql = require('mysql');
@@ -31,12 +31,10 @@ var con = mysql.createConnection({
   database: process.env.DB_NAME
 });
 
-//Upload file to AWS S3 Bucket
-
 //POST Request LogIn
 app.post('/api/login', (req, res) => {
   console.log("Login Request");
-  console.log(JSON.stringify(req.body));
+  //console.log(JSON.stringify(req.body));
   let username = req.body.username;
   let password = req.body.password;
   con.query("SELECT * from Users WHERE username = \"" + username + "\" AND password = \"" + password + "\";",
@@ -45,7 +43,7 @@ app.post('/api/login', (req, res) => {
         console.log(err);
         res.send({ code: 404, message: "Incorrect Username or Password" });
       } else {
-        console.log("Result: " + JSON.stringify(result));
+        //console.log("Result: " + JSON.stringify(result));
         if (result.length == 0) {
           res.send({ code: 404, message: "Incorrect Username or Password" });
         } else {
@@ -62,7 +60,7 @@ app.post('/api/login', (req, res) => {
 //POST Request SignUp
 app.post('/api/signup', function (req, res) {
   console.log("SignUp Request");
-  console.log(JSON.stringify(req.body));
+  //console.log(JSON.stringify(req.body));
   let username = req.body.username;
   let password = req.body.password;
   con.query("INSERT INTO Users (username, password) VALUES (\"" + username + "\", \"" + password + "\");",
@@ -71,8 +69,8 @@ app.post('/api/signup', function (req, res) {
         console.log(err);
         res.send({ code: 400, message: "Signup Failed. Username taken!" });
       } else {
-        console.log("Result: " + JSON.stringify(result));
-        console.log(result.insertId);
+        //console.log("Result: " + JSON.stringify(result));
+        //console.log(result.insertId);
         if (result.insertId != 0) {
           res.send({ code: 200, message: "Signup Successful" });
         } else {
@@ -98,7 +96,6 @@ const makeRandom = () => {
 //Receives file, userid, description, file_name
 //Uploads file to AWS S3 Bucket
 //Saves file_name, description, userid, file_path to database
-
 app.post('/api/uploadImage', function (req, res) {
   console.log("Upload Request");
   var form = new multiparty.Form();
@@ -114,13 +111,13 @@ app.post('/api/uploadImage', function (req, res) {
       var files_list = Object.entries(files);
       var file = files_list[0][1][0];
       var file_name = fields_list[0][1][0];
-      console.log(file_name);
+      //console.log(file_name);
       const file_content = fs.readFileSync(file.path);
 
       var description = fields_list[1][1][0];
-      console.log(description);
+      //console.log(description);
       var Userid = fields_list[2][1][0];
-      console.log(Userid);
+      //console.log(Userid);
 
       var rand = makeRandom();
 
@@ -145,8 +142,8 @@ app.post('/api/uploadImage', function (req, res) {
                 console.log(err);
                 res.send({ code: 400, message: "Upload Failed Error" });
               } else {
-                console.log("Result: " + JSON.stringify(result));
-                console.log(result.insertId);
+                //console.log("Result: " + JSON.stringify(result));
+                //console.log(result.insertId);
                 if (result.insertId != 0) {
                   res.status(200).send({ code: 200, message: "Upload Successful" });
                 } else {
@@ -175,7 +172,7 @@ app.get('/api/getImageData', function (req, res) {
           console.log(err);
           res.send({ code: 400, message: "Failed Lookup" });
         } else {
-          console.log("Result: " + JSON.stringify(result));
+          //console.log("Result: " + JSON.stringify(result));
 
           if (result.length !== 0) {
             res.send({ code: 200, message: "Admin Lookup Successful", data: result });
@@ -192,7 +189,7 @@ app.get('/api/getImageData', function (req, res) {
           console.log(err);
           res.send({ code: 400, message: "Failed Lookup" });
         } else {
-          console.log("Result: " + JSON.stringify(result));
+          //console.log("Result: " + JSON.stringify(result));
 
           if (result.length !== 0) {
             res.send({ code: 200, message: "Lookup Successful", data: result });
@@ -208,7 +205,7 @@ app.get('/api/getImageData', function (req, res) {
 //POST Request updateImageData
 app.post('/api/updateImageData', function (req, res) {
   console.log("Update Request");
-  console.log(JSON.stringify(req.body));
+  //console.log(JSON.stringify(req.body));
   let file_name = req.body.firstName;
   let description = req.body.description;
   let id = req.body.id;
@@ -218,7 +215,7 @@ app.post('/api/updateImageData', function (req, res) {
         console.log(err);
         res.send({ code: 400, message: "Update Failed Error" });
       } else {
-        console.log("Result: " + JSON.stringify(result));
+        //console.log("Result: " + JSON.stringify(result));
         if (result.affectedRows != 0) {
           res.send({ code: 200, message: "Update Successful" });
         } else {
@@ -238,7 +235,7 @@ app.get('/api/deleteImageData', function (req, res) {
         console.log(err);
         res.send({ code: 400, message: "Delete Failed Error" });
       } else {
-        console.log("Result: " + JSON.stringify(result));
+        //console.log("Result: " + JSON.stringify(result));
         if (result.affectedRows != 0) {
           res.send({ code: 200, message: "Delete Successful" });
         } else {
@@ -250,18 +247,6 @@ app.get('/api/deleteImageData', function (req, res) {
 });
 
 //Defaults
-app.get('/api', function (req, res) {
-  res.send({
-    "Output": "Hello World!"
-  });
-});
-
-app.post('/api', function (req, res) {
-  res.send({
-    "Output": "Hello World!"
-  });
-});
-
 app.get("*", function (req, res) {
   res.send({
     "Output": "Hello World!"

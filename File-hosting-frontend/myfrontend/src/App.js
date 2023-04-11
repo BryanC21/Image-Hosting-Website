@@ -1,8 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import './App.css';
-import { BrowserRouter as Router, Route, Switch, Routes, Link } from "react-router-dom";
-import { useDispatch, useSelector } from 'react-redux'
-import axios from 'axios';
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import React from 'react';
 import Login from './login';
 import Signup from './signup';
@@ -14,7 +12,7 @@ import Navbar from './Navbar';
 function App() {
 
   useEffect(() => {
-    document.title = "Cloud Project";
+    document.title = "Cloud Storage";
   }, []);
 
   return (

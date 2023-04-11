@@ -1,14 +1,12 @@
 import React, { useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { setID } from "./redux/actions";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import "./forms.css";
 
 function Signup() {
 
     const info = useSelector(state => state.customReducer);
-    //console.log(info);
-    const dispatch = useDispatch();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -19,20 +17,17 @@ function Signup() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        //console.log(e.target.username);
         const username = e.target.username.value;
         const password = e.target.password.value;
-        const url = process.env.REACT_APP_BASE_URL+'/api/signup';
+        const url = process.env.REACT_APP_BASE_URL + '/api/signup';
         axios.post(url, {
             username,
             password
         }).then((response) => {
-            console.log(response);
             if (response.data.code === 400) {
                 alert(response.data.message);
             }
             else {
-                //dispatch(setID(response.data.userid));
                 navigate("/login");
             }
         }).catch((error) => {
@@ -41,23 +36,22 @@ function Signup() {
     }
 
     return (
-        <div className='App'>
-            <header className='App-header'>
-                <h1>Signup</h1>
-                <form onSubmit={handleSubmit}>
-                    <label>
-                        UserName:
-                        <input type="text" name="username" />
-                    </label>
-                    <br />
-                    <label>
-                        Password:
-                        <input type="text" name="password" />
-                    </label>
-                    <br />
-                    <input type="submit" value="Submit" />
-                </form>
-            </header>
+        <div className=''>
+            <form className='fform' onSubmit={handleSubmit}>
+                <h2>Sign up</h2>
+                <br />
+                <label className="flabel">
+                    UserName:
+                    <input className="finput" type="text" id="username" name="username" />
+                </label>
+                <br />
+                <label className="flabel">
+                    Password:
+                    <input className="finput" type="text" id="password" name="password" />
+                </label>
+                <br />
+                <input className="fbutton" type="submit" value="Submit" />
+            </form>
         </div>
     );
 }

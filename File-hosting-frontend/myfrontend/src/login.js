@@ -3,11 +3,11 @@ import { useSelector, useDispatch } from "react-redux";
 import { setID } from "./redux/actions";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import "./forms.css";
 
 function Login() {
 
     const info = useSelector(state => state.customReducer);
-    //console.log(info);
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
@@ -19,7 +19,6 @@ function Login() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        //console.log(e.target.username);
         const username = e.target.username.value;
         const password = e.target.password.value;
         const url = process.env.REACT_APP_BASE_URL + '/api/login';
@@ -27,7 +26,6 @@ function Login() {
             username,
             password
         }).then((response) => {
-            console.log(response);
             if (response.data.code === 404) {
                 alert(response.data.message);
             }
@@ -41,23 +39,22 @@ function Login() {
     }
 
     return (
-        <div className='App'>
-            <header className='App-header'>
-                <h1>Login</h1>
-                <form onSubmit={handleSubmit}>
-                    <label>
-                        UserName:
-                        <input type="text" name="username" />
-                    </label>
-                    <br />
-                    <label>
-                        Password:
-                        <input type="text" name="password" />
-                    </label>
-                    <br />
-                    <input type="submit" value="Submit" />
-                </form>
-            </header>
+        <div className=''>
+            <form className="fform" onSubmit={handleSubmit}>
+                <h2>Login</h2>
+                <br />
+                <label className="flabel">
+                    UserName:
+                    <input className="finput" type="text" name="username" />
+                </label>
+                <br />
+                <label className="flabel">
+                    Password:
+                    <input type="text" className="finput" name="password" />
+                </label>
+                <br />
+                <input type="submit" className="fbutton" value="Submit" />
+            </form>
         </div>
     );
 }
